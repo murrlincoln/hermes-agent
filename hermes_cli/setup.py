@@ -3311,10 +3311,10 @@ def run_setup_wizard(args):
 
     # Section 2: Model & Provider — skip if x402 bundle already set it
     _x402_wallet = Path.home() / ".hermes-x402" / "wallet.json"
-    _x402_configured_model = _x402_wallet.exists() and config.get("model", {}).get("provider") == "custom"
+    _x402_configured_model = _x402_wallet.exists() and cfg_get(config, "model", "provider") == "custom"
     if _x402_configured_model:
-        _cur_model = config.get("model", {}).get("default", "")
-        _cur_url = config.get("model", {}).get("base_url", "")
+        _cur_model = cfg_get(config, "model", "default", default="")
+        _cur_url = cfg_get(config, "model", "base_url", default="")
         print_header("Model & Provider")
         print_success(f"Model configured by x402: {_cur_model}")
         print_info(f"Provider: custom ({_cur_url})")
@@ -3358,9 +3358,9 @@ def _run_first_time_quick_setup(config: dict, hermes_home, is_existing: bool):
 
     # Step 2: Model & Provider — skip if x402 already set it
     _x402_wallet = Path.home() / ".hermes-x402" / "wallet.json"
-    _x402_configured = _x402_wallet.exists() and config.get("model", {}).get("provider") == "custom"
+    _x402_configured = _x402_wallet.exists() and cfg_get(config, "model", "provider") == "custom"
     if _x402_configured:
-        _cur_model = config.get("model", {}).get("default", "")
+        _cur_model = cfg_get(config, "model", "default", default="")
         print_header("Model & Provider")
         print_success(f"Model configured by x402: {_cur_model}")
         print_info("Change later with: hermes setup model")
