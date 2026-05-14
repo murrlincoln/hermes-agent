@@ -2,11 +2,12 @@
 Interactive setup wizard for Hermes Agent.
 
 Modular wizard with independently-runnable sections:
-  1. Model & Provider — choose your AI provider and model
-  2. Terminal Backend — where your agent runs commands
-  3. Agent Settings — iterations, compression, session reset
-  4. Messaging Platforms — connect Telegram, Discord, etc.
-  5. Tools — configure TTS, web search, image generation, etc.
+  1. x402 Wallet & Skills — wallet bootstrap and MCP registration
+  2. Model & Provider — choose your AI provider and model
+  3. Terminal Backend — where your agent runs commands
+  4. Agent Settings — iterations, compression, session reset
+  5. Messaging Platforms — connect Telegram, Discord, etc.
+  6. Tools — configure TTS, web search, image generation, etc.
 
 Config files are stored in ~/.hermes/ for easy access.
 """
@@ -17,6 +18,7 @@ import logging
 import os
 import re
 import shutil
+import subprocess
 import sys
 import copy
 from pathlib import Path
@@ -30,6 +32,8 @@ from hermes_constants import get_optional_skills_dir
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+
+_x402_mcp_registered = False
 
 _DOCS_BASE = "https://hermes-agent.nousresearch.com/docs"
 
@@ -791,6 +795,68 @@ def _read_nearest_vercel_project(start: Path | None = None) -> dict[str, str]:
 # =============================================================================
 # Section 1: Model & Provider Configuration
 # =============================================================================
+
+
+def _register_x402_mcp_server() -> bool:
+    """Install/register the x402 MCP server via the x402 TypeScript CLI."""
+    global _x402_mcp_registered
+    if _x402_mcp_registered:
+        return True
+
+    print_info("Registering x402 MCP server...")
+    try:
+        result = subprocess.run(
+            ["npx", "tsx", "x402/src/cli/index.ts", "install-mcp"],
+            cwd=PROJECT_ROOT,
+            check=False,
+        )
+    except FileNotFoundError:
+        print_warning("npx not found; could not auto-register x402 MCP server.")
+        print_info("Install Node.js 20+ and run: npx tsx x402/src/cli/index.ts install-mcp")
+        return False
+
+    if result.returncode != 0:
+        print_warning("x402 MCP registration failed. You can re-run it manually:")
+        print_info("  npx tsx x402/src/cli/index.ts install-mcp")
+        return False
+
+    _x402_mcp_registered = True
+    os.environ["HERMES_X402_MCP_REGISTERED"] = "1"
+    print_success("x402 MCP server registered")
+    return True
+
+
+def setup_x402(config: dict):
+    """Configure x402 wallet + skill selection via the embedded x402 CLI."""
+    del config  # x402 persists to ~/.hermes-x402 and patches Hermes config itself.
+
+    print_header("x402 Wallet & Skills")
+
+    wallet_path = Path.home() / ".hermes-x402" / "wallet.json"
+    if wallet_path.exists():
+        if not prompt_yes_no("x402 wallet already exists. Re-run x402 setup?", default=False):
+            print_info("Skipping x402 setup (existing wallet kept).")
+            return
+    else:
+        if not prompt_yes_no("Set up x402 wallet and skills now?", default=True):
+            print_info("Skipping x402 setup. Run 'hermes setup x402' later to enable it.")
+            return
+
+    try:
+        result = subprocess.run(
+            ["npx", "tsx", "x402/src/cli/index.ts", "init"],
+            cwd=PROJECT_ROOT,
+            check=False,
+        )
+    except FileNotFoundError:
+        print_warning("npx not found; install Node.js 20+ to run x402 setup.")
+        return
+
+    if result.returncode != 0:
+        print_warning("x402 setup did not complete successfully.")
+        return
+
+    _register_x402_mcp_server()
 
 
 
@@ -3038,6 +3104,7 @@ def _offer_openclaw_migration(hermes_home: Path) -> bool:
 # =============================================================================
 
 SETUP_SECTIONS = [
+    ("x402", "x402 Wallet & Skills", setup_x402),
     ("model", "Model & Provider", setup_model_provider),
     ("tts", "Text-to-Speech", setup_tts),
     ("terminal", "Terminal Backend", setup_terminal_backend),
@@ -3052,6 +3119,7 @@ def run_setup_wizard(args):
 
     Supports full, quick, and section-specific setup:
       hermes setup           — full or quick (auto-detected)
+      hermes setup x402      — x402 wallet + skill setup
       hermes setup model     — just model/provider
       hermes setup tts       — just text-to-speech
       hermes setup terminal  — just terminal backend
@@ -3238,23 +3306,26 @@ def run_setup_wizard(args):
         print_info("Each section below will show what was imported — press Enter to keep,")
         print_info("or choose to reconfigure if needed.")
 
-    # Section 1: Model & Provider
+    # Section 1: x402 Wallet + Skills
+    setup_x402(config)
+
+    # Section 2: Model & Provider
     if not (migration_ran and _skip_configured_section(config, "model", "Model & Provider")):
         setup_model_provider(config)
 
-    # Section 2: Terminal Backend
+    # Section 3: Terminal Backend
     if not (migration_ran and _skip_configured_section(config, "terminal", "Terminal Backend")):
         setup_terminal_backend(config)
 
-    # Section 3: Agent Settings
+    # Section 4: Agent Settings
     if not (migration_ran and _skip_configured_section(config, "agent", "Agent Settings")):
         setup_agent_settings(config)
 
-    # Section 4: Messaging Platforms
+    # Section 5: Messaging Platforms
     if not (migration_ran and _skip_configured_section(config, "gateway", "Messaging Platforms")):
         setup_gateway(config)
 
-    # Section 5: Tools
+    # Section 6: Tools
     if not (migration_ran and _skip_configured_section(config, "tools", "Tools")):
         setup_tools(config, first_install=not is_existing)
 
@@ -3273,18 +3344,21 @@ def _run_first_time_quick_setup(config: dict, hermes_home, is_existing: bool):
     Applies sensible defaults for TTS (Edge), agent settings, and tools —
     the user can customize later via ``hermes setup <section>``.
     """
-    # Step 1: Model & Provider (essential — skips rotation/vision/TTS)
+    # Step 1: x402 wallet + skills (optional)
+    setup_x402(config)
+
+    # Step 2: Model & Provider (essential — skips rotation/vision/TTS)
     setup_model_provider(config, quick=True)
 
-    # Step 2: Terminal Backend — where commands run is a core decision
+    # Step 3: Terminal Backend — where commands run is a core decision
     setup_terminal_backend(config)
 
-    # Step 3: Apply defaults for everything else
+    # Step 4: Apply defaults for everything else
     _apply_default_agent_settings(config)
 
     save_config(config)
 
-    # Step 4: Offer messaging gateway setup
+    # Step 5: Offer messaging gateway setup
     print()
     gateway_choice = prompt_choice(
         "Connect a messaging platform? (Telegram, Discord, etc.)",

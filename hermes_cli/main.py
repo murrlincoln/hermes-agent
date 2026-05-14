@@ -398,6 +398,35 @@ def _has_any_provider_configured() -> bool:
     return False
 
 
+def _x402_wallet_path() -> Path:
+    return Path.home() / ".hermes-x402" / "wallet.json"
+
+
+def _has_x402_wallet_configured() -> bool:
+    return _x402_wallet_path().exists()
+
+
+def _install_x402_mcp_server() -> bool:
+    """Best-effort MCP registration for x402 after setup."""
+    try:
+        result = subprocess.run(
+            ["npx", "tsx", "x402/src/cli/index.ts", "install-mcp"],
+            cwd=PROJECT_ROOT,
+            check=False,
+        )
+    except FileNotFoundError:
+        print("Warning: npx not found; could not auto-register x402 MCP server.")
+        print("         Run manually: npx tsx x402/src/cli/index.ts install-mcp")
+        return False
+
+    if result.returncode != 0:
+        print("Warning: x402 MCP registration failed.")
+        print("         Run manually: npx tsx x402/src/cli/index.ts install-mcp")
+        return False
+
+    return True
+
+
 def _session_browse_picker(sessions: list) -> Optional[str]:
     """Interactive curses-based session browser with live search filtering.
 
@@ -1355,6 +1384,15 @@ def cmd_chat(args):
         print("You can run 'hermes setup' at any time to configure.")
         sys.exit(1)
 
+    # x402 first-run nudge (non-blocking): suggest setup when wallet is missing.
+    if not _has_x402_wallet_configured():
+        print()
+        print("x402 wallet not found (missing ~/.hermes-x402/wallet.json).")
+        print("For x402 bridge + MCP tools, run:")
+        print("  hermes setup x402")
+        print("  (or run full setup with: hermes setup)")
+        print()
+
     # Start update check in background (runs while other init happens)
     try:
         from hermes_cli.banner import prefetch_update_check
@@ -1664,6 +1702,8 @@ def cmd_setup(args):
     from hermes_cli.setup import run_setup_wizard
 
     run_setup_wizard(args)
+    if getattr(args, "section", None) == "x402" and os.environ.get("HERMES_X402_MCP_REGISTERED") != "1":
+        _install_x402_mcp_server()
 
 
 def cmd_model(args):
@@ -9683,12 +9723,12 @@ def main():
         "setup",
         help="Interactive setup wizard",
         description="Configure Hermes Agent with an interactive wizard. "
-        "Run a specific section: hermes setup model|tts|terminal|gateway|tools|agent",
+        "Run a specific section: hermes setup x402|model|tts|terminal|gateway|tools|agent",
     )
     setup_parser.add_argument(
         "section",
         nargs="?",
-        choices=["model", "tts", "terminal", "gateway", "tools", "agent"],
+        choices=["x402", "model", "tts", "terminal", "gateway", "tools", "agent"],
         default=None,
         help="Run a specific setup section instead of the full wizard",
     )

@@ -267,6 +267,50 @@ else
 fi
 
 # ============================================================================
+# x402 Node.js dependencies
+# ============================================================================
+
+echo -e "${CYAN}→${NC} Installing x402 Node.js dependencies..."
+
+X402_DIR="$SCRIPT_DIR/x402"
+if [ ! -d "$X402_DIR" ]; then
+    echo -e "${YELLOW}⚠${NC} x402/ directory not found — skipping x402 dependency install"
+else
+    NODE_OK=true
+
+    if command -v node &> /dev/null; then
+        NODE_VERSION_RAW="$(node -v 2>/dev/null || true)"
+        NODE_MAJOR="${NODE_VERSION_RAW#v}"
+        NODE_MAJOR="${NODE_MAJOR%%.*}"
+        if [ -z "$NODE_MAJOR" ] || ! [[ "$NODE_MAJOR" =~ ^[0-9]+$ ]]; then
+            echo -e "${YELLOW}⚠${NC} Could not determine Node.js version ($NODE_VERSION_RAW). x402 expects Node.js >= 20"
+            NODE_OK=false
+        elif [ "$NODE_MAJOR" -lt 20 ]; then
+            echo -e "${YELLOW}⚠${NC} Detected Node.js $NODE_VERSION_RAW. x402 expects Node.js >= 20"
+            NODE_OK=false
+        fi
+    else
+        echo -e "${YELLOW}⚠${NC} Node.js not found. Install Node.js >= 20 to enable x402 features"
+        NODE_OK=false
+    fi
+
+    if ! command -v npm &> /dev/null; then
+        echo -e "${YELLOW}⚠${NC} npm not found. Install Node.js >= 20 to enable x402 features"
+        NODE_OK=false
+    fi
+
+    if [ "$NODE_OK" = true ]; then
+        if (cd "$X402_DIR" && npm install --no-fund --no-audit --progress=false); then
+            echo -e "${GREEN}✓${NC} x402 dependencies installed"
+        else
+            echo -e "${YELLOW}⚠${NC} x402 dependency install failed (continuing setup)"
+        fi
+    else
+        echo -e "${YELLOW}⚠${NC} Skipping x402 npm install until Node.js >= 20 is available"
+    fi
+fi
+
+# ============================================================================
 # Submodules (terminal backend + RL training)
 # ============================================================================
 

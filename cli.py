@@ -1223,6 +1223,80 @@ def _prune_orphaned_branches(repo_root: str) -> None:
 
     logger.debug("Pruned %d orphaned branches", len(orphaned))
 
+
+def _x402_bridge_pid_running(pid_file: Path) -> bool:
+    """Return True when pid_file points to a live process."""
+    if not pid_file.exists():
+        return False
+
+    try:
+        pid_raw = pid_file.read_text(encoding="utf-8").strip()
+        pid = int(pid_raw)
+    except Exception:
+        try:
+            pid_file.unlink()
+        except OSError:
+            pass
+        return False
+
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        try:
+            pid_file.unlink()
+        except OSError:
+            pass
+        return False
+    except PermissionError:
+        return True
+    except Exception:
+        return False
+
+
+def _auto_start_x402_bridge(quiet: bool = False) -> None:
+    """Auto-start the embedded x402 bridge daemon when wallet is configured."""
+    wallet_file = Path.home() / ".hermes-x402" / "wallet.json"
+    if not wallet_file.exists():
+        return
+
+    state_dir = wallet_file.parent
+    state_dir.mkdir(parents=True, exist_ok=True)
+    pid_file = state_dir / "bridge.pid"
+    if _x402_bridge_pid_running(pid_file):
+        return
+
+    x402_dir = Path(__file__).resolve().parent / "x402"
+    bridge_path = x402_dir / "src" / "bridge" / "server.ts"
+    if not bridge_path.exists():
+        logger.debug("x402 bridge entrypoint not found at %s", bridge_path)
+        return
+
+    import subprocess
+
+    log_file = state_dir / "bridge.log"
+    try:
+        with open(log_file, "a", encoding="utf-8") as log_fd:
+            proc = subprocess.Popen(
+                ["npx", "tsx", str(bridge_path)],
+                cwd=str(x402_dir),
+                stdout=log_fd,
+                stderr=log_fd,
+                start_new_session=True,
+            )
+        pid_file.write_text(str(proc.pid), encoding="utf-8")
+    except FileNotFoundError:
+        logger.debug("npx not found; skipping x402 bridge autostart")
+        return
+    except Exception as exc:
+        logger.debug("Failed to auto-start x402 bridge: %s", exc)
+        return
+
+    if quiet:
+        print("x402 bridge started on localhost:8402", file=sys.stderr)
+    else:
+        print("x402 bridge started on localhost:8402")
+
 # ============================================================================
 # ASCII Art & Branding
 # ============================================================================
@@ -13545,6 +13619,10 @@ def main(
         toolsets_list = sorted(_get_platform_tools(CLI_CONFIG, "cli"))
     
     parsed_skills = _parse_skills_argument(skills)
+
+    # Auto-start x402 bridge before entering the agent loop.
+    if not list_tools and not list_toolsets:
+        _auto_start_x402_bridge(quiet=quiet)
 
     # Create CLI instance
     cli = HermesCLI(
