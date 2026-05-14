@@ -828,13 +828,12 @@ def _register_x402_mcp_server() -> bool:
 
 def setup_x402(config: dict):
     """Configure x402 wallet + skill selection via the embedded x402 CLI."""
-    del config  # x402 persists to ~/.hermes-x402 and patches Hermes config itself.
-
     print_header("x402 Wallet & Skills")
 
     wallet_path = Path.home() / ".hermes-x402" / "wallet.json"
     if wallet_path.exists():
         if not prompt_yes_no("x402 wallet already exists. Re-run x402 setup?", default=False):
+            _apply_x402_model_config(config)
             print_info("Skipping x402 setup (existing wallet kept).")
             return
     else:
@@ -856,7 +855,21 @@ def setup_x402(config: dict):
         print_warning("x402 setup did not complete successfully.")
         return
 
+    _apply_x402_model_config(config)
     _register_x402_mcp_server()
+
+
+def _apply_x402_model_config(config: dict):
+    """Set model config in memory so the model provider step gets skipped."""
+    wallet_path = Path.home() / ".hermes-x402" / "wallet.json"
+    if not wallet_path.exists():
+        return
+    if not isinstance(config.get("model"), dict):
+        config["model"] = {}
+    config["model"]["provider"] = "custom"
+    config["model"]["base_url"] = "http://127.0.0.1:8402/v1"
+    if not config["model"].get("default"):
+        config["model"]["default"] = "llama-3.3-70b"
 
 
 
