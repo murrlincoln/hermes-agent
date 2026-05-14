@@ -3309,8 +3309,17 @@ def run_setup_wizard(args):
     # Section 1: x402 Wallet + Skills
     setup_x402(config)
 
-    # Section 2: Model & Provider
-    if not (migration_ran and _skip_configured_section(config, "model", "Model & Provider")):
+    # Section 2: Model & Provider — skip if x402 bundle already set it
+    _x402_wallet = Path.home() / ".hermes-x402" / "wallet.json"
+    _x402_configured_model = _x402_wallet.exists() and config.get("model", {}).get("provider") == "custom"
+    if _x402_configured_model:
+        _cur_model = config.get("model", {}).get("default", "")
+        _cur_url = config.get("model", {}).get("base_url", "")
+        print_header("Model & Provider")
+        print_success(f"Model configured by x402: {_cur_model}")
+        print_info(f"Provider: custom ({_cur_url})")
+        print_info("Change later with: hermes setup model")
+    elif not (migration_ran and _skip_configured_section(config, "model", "Model & Provider")):
         setup_model_provider(config)
 
     # Section 3: Terminal Backend
@@ -3344,11 +3353,19 @@ def _run_first_time_quick_setup(config: dict, hermes_home, is_existing: bool):
     Applies sensible defaults for TTS (Edge), agent settings, and tools —
     the user can customize later via ``hermes setup <section>``.
     """
-    # Step 1: x402 wallet + skills (optional)
+    # Step 1: x402 wallet + skills
     setup_x402(config)
 
-    # Step 2: Model & Provider (essential — skips rotation/vision/TTS)
-    setup_model_provider(config, quick=True)
+    # Step 2: Model & Provider — skip if x402 already set it
+    _x402_wallet = Path.home() / ".hermes-x402" / "wallet.json"
+    _x402_configured = _x402_wallet.exists() and config.get("model", {}).get("provider") == "custom"
+    if _x402_configured:
+        _cur_model = config.get("model", {}).get("default", "")
+        print_header("Model & Provider")
+        print_success(f"Model configured by x402: {_cur_model}")
+        print_info("Change later with: hermes setup model")
+    else:
+        setup_model_provider(config, quick=True)
 
     # Step 3: Terminal Backend — where commands run is a core decision
     setup_terminal_backend(config)
