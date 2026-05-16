@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { getX402Fetch, extractPaymentInfo } from '../lib/x402-fetch.js'
 import { logPayment } from '../lib/ledger.js'
 import { loadWallet } from '../lib/wallet.js'
-import { loadSkillsConfig } from '../lib/marketplace.js'
 
 const log = (...args: unknown[]) => process.stderr.write(args.join(' ') + '\n')
 
@@ -13,41 +12,27 @@ const wallet = loadWallet()
 log(`[hermes-x402-mcp] wallet ${wallet.address}`)
 
 const ENDPOINT_EXAMPLES: Record<string, string> = {
-  'https://wolframalpha.x402.paysponge.com/v1/result': 'GET https://wolframalpha.x402.paysponge.com/v1/result?i=population+of+france (query param is "i", URL-encode the question)',
-  'https://wolframalpha.x402.paysponge.com/v1/simple': 'GET https://wolframalpha.x402.paysponge.com/v1/simple?i=solve+x^2-4=0',
-  'https://wolframalpha.x402.paysponge.com/v2/query': 'GET https://wolframalpha.x402.paysponge.com/v2/query?input=ISS+location&output=json',
-  'https://api.exa.ai/search': 'POST https://api.exa.ai/search body={"query":"search term","numResults":5,"type":"auto"} headers={"Content-Type":"application/json"}',
-  'https://api.exa.ai/contents': 'POST https://api.exa.ai/contents body={"urls":["https://example.com"],"text":true} headers={"Content-Type":"application/json"}',
-  'https://pplx.x402.paysponge.com/search': 'POST https://pplx.x402.paysponge.com/search body={"query":"your question"} headers={"Content-Type":"application/json"}',
-  'https://stableenrich.dev/api/apollo/org-search': 'POST https://stableenrich.dev/api/apollo/org-search body={"query":"Company Name"} headers={"Content-Type":"application/json"}',
-  'https://stableenrich.dev/api/apollo/people-search': 'POST https://stableenrich.dev/api/apollo/people-search body={"query":"person name or title"} headers={"Content-Type":"application/json"}',
-  'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools': 'GET https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=ETH',
-  'https://pro-api.coingecko.com/api/v3/x402/onchain/simple/networks/base/token_price/ethereum': 'GET https://pro-api.coingecko.com/api/v3/x402/onchain/simple/networks/base/token_price/ethereum',
+  'https://wolframalpha.x402.paysponge.com/v1/result': 'Wolfram Alpha: GET https://wolframalpha.x402.paysponge.com/v1/result?i=population+of+france (query param is "i", URL-encode spaces as +)',
+  'https://api.exa.ai/search': 'Exa Search: POST https://api.exa.ai/search body={"query":"search term","numResults":5,"type":"auto"} headers={"Content-Type":"application/json"}',
+  'https://pplx.x402.paysponge.com/search': 'Perplexity: POST https://pplx.x402.paysponge.com/search body={"query":"your question"} headers={"Content-Type":"application/json"}',
+  'https://pro-api.coingecko.com/api/v3/x402/simple/price': 'CoinGecko Prices: GET https://pro-api.coingecko.com/api/v3/x402/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true',
+  'https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools': 'CoinGecko Pools: GET https://pro-api.coingecko.com/api/v3/x402/onchain/search/pools?query=USDC',
+  'https://blockrun.ai/api/v1/defillama/prices': 'BlockRun DeFi Prices: GET https://blockrun.ai/api/v1/defillama/prices/coingecko:bitcoin,coingecko:ethereum',
+  'https://blockrun.ai/api/v1/defillama/protocols': 'BlockRun DeFi Protocols: GET https://blockrun.ai/api/v1/defillama/protocols',
+  'https://blockrun.ai/api/v1/pm/polymarket/events': 'BlockRun Polymarket: GET https://blockrun.ai/api/v1/pm/polymarket/events?limit=5',
+  'https://stableenrich.dev/api/firecrawl/scrape': 'Firecrawl Scrape: POST https://stableenrich.dev/api/firecrawl/scrape body={"url":"https://example.com"} headers={"Content-Type":"application/json"}',
+  'https://stableenrich.dev/api/apollo/org-enrich': 'Apollo Company: POST https://stableenrich.dev/api/apollo/org-enrich body={"domain":"coinbase.com"} headers={"Content-Type":"application/json"}',
+  'https://stableenrich.dev/api/apollo/org-search': 'Apollo Search: POST https://stableenrich.dev/api/apollo/org-search body={"q_organization_name":"Coinbase","per_page":5} headers={"Content-Type":"application/json"}',
+  'https://stableenrich.dev/api/apollo/people-search': 'Apollo People: POST https://stableenrich.dev/api/apollo/people-search body={"q_organization_domains":["coinbase.com"],"per_page":5} headers={"Content-Type":"application/json"}',
 }
 
 function buildEndpointReference(): string {
-  try {
-    const config = loadSkillsConfig()
-    if (config.selectedServices.length === 0) return ''
-
-    const lines: string[] = ['\n\nAVAILABLE x402 ENDPOINTS — use these EXACT URLs:']
-    for (const svc of config.selectedServices) {
-      lines.push(`\n${svc.name}:`)
-      for (const ep of svc.endpoints.slice(0, 3)) {
-        const example = ENDPOINT_EXAMPLES[ep.url]
-        if (example) {
-          lines.push(`  ${example}`)
-        } else {
-          const price = ep.pricing?.amount ? ` ($${ep.pricing.amount})` : ''
-          lines.push(`  ${ep.method} ${ep.url}${price} — ${ep.description}`)
-        }
-      }
-    }
-    lines.push('\nRULES: Use ONLY the URLs above. Do NOT use official API URLs (api.wolframalpha.com, api.exa.ai without x402, etc). For GET requests with query params, append ?param=value to the URL. NEVER send body with GET requests.')
-    return lines.join('\n')
-  } catch {
-    return ''
+  const lines: string[] = ['\n\nAVAILABLE x402 ENDPOINTS — use these EXACT URLs:']
+  for (const example of Object.values(ENDPOINT_EXAMPLES)) {
+    lines.push(`  ${example}`)
   }
+  lines.push('\nRULES: Use ONLY the URLs above. Do NOT use official API URLs (api.wolframalpha.com, api.exa.ai without x402, etc). For GET requests with query params, append ?param=value to the URL. NEVER send body with GET requests.')
+  return lines.join('\n')
 }
 
 const endpointRef = buildEndpointReference()
