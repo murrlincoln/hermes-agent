@@ -24,6 +24,10 @@ const ENDPOINT_EXAMPLES: Record<string, string> = {
   'https://stableenrich.dev/api/apollo/org-enrich': 'Apollo Company: POST https://stableenrich.dev/api/apollo/org-enrich body={"domain":"coinbase.com"} headers={"Content-Type":"application/json"}',
   'https://stableenrich.dev/api/apollo/org-search': 'Apollo Search: POST https://stableenrich.dev/api/apollo/org-search body={"q_organization_name":"Coinbase","per_page":5} headers={"Content-Type":"application/json"}',
   'https://stableenrich.dev/api/apollo/people-search': 'Apollo People: POST https://stableenrich.dev/api/apollo/people-search body={"q_organization_domains":["coinbase.com"],"per_page":5} headers={"Content-Type":"application/json"}',
+  'https://api.zerion.io/v1/wallets': 'Zerion Portfolio: GET https://api.zerion.io/v1/wallets/0xADDRESS/portfolio (replace 0xADDRESS with wallet address)',
+  'https://api.zerion.io/v1/fungibles': 'Zerion Token Search: GET https://api.zerion.io/v1/fungibles/?search=usdc',
+  'https://blockrun.ai/api/v1/defillama/yields': 'BlockRun DeFi Yields: GET https://blockrun.ai/api/v1/defillama/yields',
+  'https://deepgram.x402.paysponge.com/v1/speak': 'Deepgram TTS: POST https://deepgram.x402.paysponge.com/v1/speak?model=aura-2-thalia-en body={"text":"your text here"} headers={"Content-Type":"application/json"}',
 }
 
 function buildEndpointReference(): string {
