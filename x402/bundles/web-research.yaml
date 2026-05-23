@@ -1,0 +1,59 @@
+name: web-research
+version: 0.0.1
+description: |
+  Research + web scraping bundle.
+  Includes Exa, Perplexity, Tavily, Firecrawl, and Wolfram Alpha.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: balanced default for fast research loops
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: strong reasoning over heterogeneous web sources
+  - id: hermes-3-llama-3.1-405b
+    role: heavy
+    notes: deep synthesis and long-form analysis
+
+est_cost_per_hour_usdc: 0.20
+
+x402_skills:
+  - exa-ai
+  - docs-perplexity-ai
+  - api-firecrawl-dev
+  - products-wolframalpha-com
+
+x402_endpoints:
+  - method: POST
+    url: https://api.exa.ai/search
+    est_cost_usdc: 0.007
+  - method: POST
+    url: https://pplx.x402.paysponge.com/search
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://x402helper.xyz/v1/gateway/search/tavily
+    est_cost_usdc: 0.012
+  - method: POST
+    url: https://stableenrich.dev/api/firecrawl/scrape
+    est_cost_usdc: 0.013
+  - method: GET
+    url: https://wolframalpha.x402.paysponge.com/v1/result?i=population+of+france
+    est_cost_usdc: 0.01
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

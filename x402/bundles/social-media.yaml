@@ -1,0 +1,58 @@
+name: social-media
+version: 0.0.1
+description: |
+  Social media intelligence bundle.
+  Includes Reddit, X/Twitter, Instagram, YouTube, TikTok, LinkedIn, and Facebook endpoints.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: fast trend scanning and classification
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: long-context social narrative synthesis
+
+est_cost_per_hour_usdc: 0.30
+
+x402_skills: []
+
+x402_endpoints:
+  - method: POST
+    url: https://stableenrich.dev/api/reddit/search
+    est_cost_usdc: 0.02
+  - method: GET
+    url: https://twit.sh/tweets/search?query=coinbase
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://stablesocial.dev/api/instagram/search
+    est_cost_usdc: 0.06
+  - method: POST
+    url: https://hirescrape.com/api/tools/youtube
+    est_cost_usdc: 0.00
+  - method: POST
+    url: https://hirescrape.com/api/tools/tiktok
+    est_cost_usdc: 0.00
+  - method: POST
+    url: https://hirescrape.com/api/tools/linkedin
+    est_cost_usdc: 0.00
+  - method: POST
+    url: https://stablesocial.dev/api/facebook/search
+    est_cost_usdc: 0.06
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

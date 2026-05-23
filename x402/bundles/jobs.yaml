@@ -1,0 +1,48 @@
+name: jobs
+version: 0.0.1
+description: |
+  Job search bundle across major platforms.
+  Built for sourcing and monitoring role openings from aggregators and structured job APIs.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: fast role filtering and ranking
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: resume-role matching and prioritization
+
+est_cost_per_hour_usdc: 0.40
+
+x402_skills: []
+
+x402_endpoints:
+  - method: POST
+    url: https://hirescrape.com/api/tools/jobs
+    est_cost_usdc: 0.21
+    notes: Indeed/Glassdoor/ZipRecruiter coverage
+  - method: GET
+    url: https://x402helper.xyz/api/agent-jobs/open
+    est_cost_usdc: 0.013
+    notes: Adzuna-style aggregated job feed
+  - method: POST
+    url: https://stablejobs.dev/api/coresignal/job-search
+    est_cost_usdc: 0.02
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

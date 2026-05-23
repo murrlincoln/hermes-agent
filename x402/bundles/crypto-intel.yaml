@@ -1,0 +1,61 @@
+name: crypto-intel
+version: 0.0.1
+description: |
+  Crypto market intelligence bundle.
+  Covers spot prices, DeFi protocols, prediction markets, wallet portfolio data, and advanced onchain analytics.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: fast market monitor + narrative tracking
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: structured multi-source crypto analysis
+  - id: hermes-3-llama-3.1-405b
+    role: heavy
+    notes: deep thesis and risk synthesis
+
+est_cost_per_hour_usdc: 0.30
+
+x402_skills: []
+
+x402_endpoints:
+  - method: GET
+    url: https://pro-api.coingecko.com/api/v3/x402/simple/price?ids=bitcoin&vs_currencies=usd
+    est_cost_usdc: 0.01
+  - method: GET
+    url: https://blockrun.ai/api/v1/defillama/prices/coingecko:bitcoin
+    est_cost_usdc: 0.001
+  - method: GET
+    url: https://blockrun.ai/api/v1/defillama/protocols
+    est_cost_usdc: 0.005
+  - method: GET
+    url: https://blockrun.ai/api/v1/pm/polymarket/events?limit=5
+    est_cost_usdc: 0.001
+  - method: POST
+    url: https://api.nansen.ai/api/v1/smart-money/netflow
+    est_cost_usdc: 0.01
+  - method: GET
+    url: https://api.zerion.io/v1/wallets/0xADDRESS/portfolio
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://api.vibe.airforce/api/x402/vibe-tools/hyperliquid/info
+    est_cost_usdc: 0.001
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

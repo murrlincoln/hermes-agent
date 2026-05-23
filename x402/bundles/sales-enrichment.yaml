@@ -1,0 +1,58 @@
+name: sales-enrichment
+version: 0.0.1
+description: |
+  B2B lead generation and enrichment bundle.
+  Optimized for outbound workflows: org search, contact discovery, verification, and enrichment.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: fast prospecting and outreach drafting
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: better filtering + qualification logic
+
+est_cost_per_hour_usdc: 0.45
+
+x402_skills: []
+
+x402_endpoints:
+  - method: POST
+    url: https://stableenrich.dev/api/apollo/org-enrich
+    est_cost_usdc: 0.05
+  - method: POST
+    url: https://stableenrich.dev/api/apollo/org-search
+    est_cost_usdc: 0.02
+  - method: POST
+    url: https://stableenrich.dev/api/apollo/people-search
+    est_cost_usdc: 0.02
+  - method: POST
+    url: https://stableenrich.dev/api/apollo/people-enrich
+    est_cost_usdc: 0.05
+  - method: POST
+    url: https://stableenrich.dev/api/hunter/email-verifier
+    est_cost_usdc: 0.03
+  - method: POST
+    url: https://stableenrich.dev/api/minerva/enrich
+    est_cost_usdc: 0.05
+  - method: POST
+    url: https://stableenrich.dev/api/clado/contacts-enrich
+    est_cost_usdc: 0.20
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

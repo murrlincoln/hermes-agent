@@ -1,0 +1,56 @@
+name: creative
+version: 0.0.1
+description: |
+  Creative generation bundle for image, video, and voice.
+  Includes FLUX, GPT Image, Sora/Veo, and high-quality TTS providers.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: prompt generation and iteration control
+  - id: hermes-3-llama-3.1-405b
+    role: heavy
+    notes: stronger creative direction and storyboard planning
+
+est_cost_per_hour_usdc: 0.85
+
+x402_skills:
+  - developers-deepgram-com
+
+x402_endpoints:
+  - method: POST
+    url: https://fal.x402.paysponge.com/fal-ai/flux/schnell
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://stablestudio.dev/api/generate/gpt-image-2/generate
+    est_cost_usdc: 0.10
+  - method: POST
+    url: https://deepgram.x402.paysponge.com/v1/speak?model=aura-2-thalia-en
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://stablevoice.dev/api/speech
+    est_cost_usdc: 0.02
+  - method: POST
+    url: https://genbase.fun/api/video/create-sora2
+    est_cost_usdc: 0.20
+  - method: POST
+    url: https://stablestudio.dev/api/generate/veo-3.1/generate
+    est_cost_usdc: 10.00
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

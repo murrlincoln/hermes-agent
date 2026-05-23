@@ -1,0 +1,52 @@
+name: travel
+version: 0.0.1
+description: |
+  Travel planning and booking intelligence bundle.
+  Includes flight search/tracking, places search, and travel-adjacent property/ticket discovery.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: itinerary building + options ranking
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: multi-leg planning and tradeoff analysis
+
+est_cost_per_hour_usdc: 0.55
+
+x402_skills: []
+
+x402_endpoints:
+  - method: POST
+    url: https://stabletravel.dev/api/flights/search
+    est_cost_usdc: 0.005
+  - method: GET
+    url: https://stabletravel.dev/api/flightaware/flights/search?query=-idents+UAL123
+    est_cost_usdc: 0.10
+  - method: POST
+    url: https://stableenrich.dev/api/google-maps/text-search/full
+    est_cost_usdc: 0.08
+  - method: GET
+    url: https://rentcast.mpp.paywithlocus.com/rentcast/properties
+    est_cost_usdc: 0.033
+  - method: POST
+    url: https://x402-tools.vercel.app/api/concerts
+    est_cost_usdc: 0.01
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1

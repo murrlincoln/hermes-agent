@@ -1,0 +1,52 @@
+name: commerce
+version: 0.0.1
+description: |
+  Commerce + gifting bundle for real-world purchases.
+  Includes gift cards, flower delivery, gift links, merch ordering, and meme inventory/search.
+
+provider: venice
+chain: base
+spend_asset: USDC
+
+endpoints:
+  - kind: openai-compatible
+    via: bridge
+    url: http://127.0.0.1:8402/v1
+
+models:
+  - id: llama-3.3-70b
+    role: primary
+    notes: shopping and checkout flow orchestration
+  - id: qwen3-235b-a22b-instruct-2507
+    role: heavy_moe
+    notes: gift recommendation and budget optimization
+
+est_cost_per_hour_usdc: 1.50
+
+x402_skills: []
+
+x402_endpoints:
+  - method: POST
+    url: https://stablegiftcards.dev/api/search
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://stableflowers.dev/api/orders
+    est_cost_usdc: 50.00
+  - method: POST
+    url: https://stablegift.dev/api/gift-link
+    est_cost_usdc: 0.01
+  - method: POST
+    url: https://agentmerch.xyz/order/hoodie
+    est_cost_usdc: 59.00
+  - method: POST
+    url: https://stablememes.dev/api/search
+    est_cost_usdc: 0.01
+
+skills: []
+mcp_servers: []
+
+hermes_config_patch:
+  model:
+    default: llama-3.3-70b
+    provider: custom
+    base_url: http://127.0.0.1:8402/v1
