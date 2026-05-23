@@ -26,6 +26,7 @@ from typing import Any
 BAZAAR_URL = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources"
 AGENTIC_URL = "https://api.agentic.market/v1/services"
 X402LIST_URL = "https://x402-list.com/api/v1/services"
+X402SEARCH_URL = "https://x402-search.vercel.app/api/search"
 
 KNOWN_ENDPOINTS: dict[str, dict[str, Any]] = {
     "https://wolframalpha.x402.paysponge.com/v1/result": {
@@ -192,6 +193,37 @@ def fetch_x402_list(limit: int = 50) -> list[dict]:
     return results
 
 
+def fetch_x402_search(query: str) -> list[dict]:
+    encoded = urllib.parse.quote(query)
+    data = _fetch_json(f"{X402SEARCH_URL}?q={encoded}", timeout=15)
+    if isinstance(data, dict) and "error" in data:
+        print(f"  x402-search error: {data['error']}", file=sys.stderr)
+        return []
+    results = data.get("results", []) if isinstance(data, dict) else []
+    out = []
+    for r in results:
+        accepts = r.get("accepts", [])
+        pay_to = ""
+        network = ""
+        for a in accepts:
+            pay_to = a.get("payTo", "")
+            network = a.get("network", "")
+            break
+        out.append({
+            "source": ", ".join(r.get("sources", [])),
+            "name": r.get("title", r.get("name", "")),
+            "url": r.get("url", ""),
+            "method": r.get("method", ""),
+            "description": r.get("description", "")[:120],
+            "price": f"${r.get('price', '?')}",
+            "auth_mode": r.get("authMode", ""),
+            "origin": r.get("originName", ""),
+            "network": network,
+            "pay_to": pay_to,
+        })
+    return out
+
+
 def cmd_search(query: str) -> None:
     query_lower = query.lower()
     print(f"Searching for: {query}\n")
@@ -203,7 +235,7 @@ def cmd_search(query: str) -> None:
             known_matches.append({"url": url, **info, "source": "verified"})
 
     if known_matches:
-        print("=== VERIFIED ENDPOINTS (tested, working) ===\n")
+        print("=== VERIFIED ENDPOINTS (tested, ready to call) ===\n")
         for m in known_matches:
             print(f"  {m['name']} ({m['price']})")
             print(f"    {m['method']} {m.get('example_url', m['url'])}")
@@ -213,32 +245,18 @@ def cmd_search(query: str) -> None:
                 print(f"    Note: {m['notes']}")
             print()
 
-    print("=== MARKETPLACE RESULTS ===\n")
-    market = fetch_agentic_market(100)
-    matches = [e for e in market if query_lower in f"{e.get('name', '')} {e.get('description', '')} {e.get('category', '')} {e.get('url', '')}".lower()]
-    if matches:
-        for m in matches[:10]:
-            print(f"  {m.get('name', '?')} ({m.get('price', '?')})")
-            print(f"    {m.get('method', '?')} {m.get('url', '')}")
+    print("=== x402 SEARCH (aggregated: Bazaar + AgentCash + Zero) ===\n")
+    x402_results = fetch_x402_search(query)
+    if x402_results:
+        for m in x402_results[:12]:
+            src = f" [{m.get('source', '')}]" if m.get("source") else ""
+            origin = f" via {m.get('origin', '')}" if m.get("origin") else ""
+            print(f"  {m.get('name', '?')} ({m.get('price', '?')}){src}")
+            print(f"    {m.get('method', '?')} {m.get('url', '')}{origin}")
             print(f"    {m.get('description', '')}")
             print()
     else:
-        print("  No marketplace matches.\n")
-
-    print("=== x402-LIST RESULTS ===\n")
-    x402list = fetch_x402_list(100)
-    matches = [e for e in x402list if query_lower in f"{e.get('name', '')} {e.get('description', '')} {e.get('category', '')}".lower()]
-    if matches:
-        for m in matches[:10]:
-            status = f" [{m.get('status', '')}]" if m.get("status") else ""
-            uptime = f" uptime:{m.get('uptime')}%" if m.get("uptime") else ""
-            rt = f" {m.get('response_time_ms')}ms" if m.get("response_time_ms") else ""
-            print(f"  {m.get('name', '?')} ({m.get('price', '?')}){status}{uptime}{rt}")
-            print(f"    {m.get('url', '')}")
-            print(f"    {m.get('description', '')}")
-            print()
-    else:
-        print("  No x402-list matches.\n")
+        print("  No x402-search results.\n")
 
 
 def cmd_list(source: str, limit: int) -> None:
@@ -377,8 +395,6 @@ def cmd_recommend(need: str) -> None:
     for url, info in KNOWN_ENDPOINTS.items():
         if matched_category and info.get("category") == matched_category:
             recommendations.append({"url": url, **info})
-        elif any(word in f"{info['name']} {info.get('category', '')}".lower() for word in need_lower.split()):
-            recommendations.append({"url": url, **info})
 
     if recommendations:
         print(f"=== RECOMMENDED (verified working, category: {matched_category or 'general'}) ===\n")
@@ -392,9 +408,14 @@ def cmd_recommend(need: str) -> None:
             if r.get("notes"):
                 print(f"    Note: {r['notes']}")
             print()
-    else:
-        print("  No verified recommendations found. Searching marketplace...\n")
-        cmd_search(need)
+    print("=== ADDITIONAL OPTIONS (from x402-search) ===\n")
+    x402_results = fetch_x402_search(need)
+    for m in x402_results[:5]:
+        already_recommended = any(m.get("url", "") in r.get("url", "") or r.get("url", "") in m.get("url", "") for r in recommendations)
+        if not already_recommended:
+            print(f"  {m.get('name', '?')} ({m.get('price', '?')}) [{m.get('source', '')}]")
+            print(f"    {m.get('method', '?')} {m.get('url', '')}")
+            print()
 
 
 def main() -> None:
