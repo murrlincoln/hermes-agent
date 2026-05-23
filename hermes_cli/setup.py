@@ -3046,11 +3046,99 @@ def _offer_openclaw_migration(hermes_home: Path) -> bool:
     return True
 
 
+def setup_x402_section(config: dict):
+    """Set up x402 wallet and payment configuration."""
+    print_header("x402 Wallet & Payments")
+    print_info("Configure your agent with an x402 wallet for paid API access.")
+    print_info(
+        "This uses the x402 optional skill (install via: "
+        "hermes skills install official/blockchain/x402)"
+    )
+    print()
+
+    # Check if skill is installed
+    skill_dir = Path.home() / ".hermes" / "skills" / "x402"
+    x402_skill = skill_dir / "SKILL.md"
+    if not x402_skill.exists():
+        # Also check optional-skills
+        optional = (
+            Path(__file__).resolve().parent.parent
+            / "optional-skills"
+            / "blockchain"
+            / "x402"
+        )
+        if optional.exists():
+            print_info("x402 skill found in optional-skills. Installing...")
+            skill_dir.mkdir(parents=True, exist_ok=True)
+            for item in optional.iterdir():
+                dest = skill_dir / item.name
+                if item.is_dir():
+                    shutil.copytree(item, dest, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(item, dest)
+            print_success("x402 skill installed!")
+        else:
+            print_warning(
+                "x402 skill not found. Install with: "
+                "hermes skills install official/blockchain/x402"
+            )
+            return
+
+    # Check for wallet
+    wallet_file = Path.home() / ".hermes-x402" / "wallet.json"
+    if wallet_file.exists():
+        try:
+            wallet = json.loads(wallet_file.read_text(encoding="utf-8"))
+            print_success(f"Wallet configured: {wallet.get('address', 'unknown')}")
+        except Exception:
+            print_warning("Wallet file exists but could not be read.")
+    else:
+        print_info("No wallet configured yet.")
+        print_info(
+            "Generate one with: "
+            "python3 ~/.hermes/skills/x402/scripts/x402_client.py wallet new"
+        )
+        if prompt_yes_no("Generate a new wallet now?", default=True):
+            import subprocess
+
+            script = skill_dir / "scripts" / "x402_client.py"
+            if script.exists():
+                result = subprocess.run(
+                    ["python3", str(script), "wallet", "new"],
+                    capture_output=True,
+                    text=True,
+                )
+                if result.returncode == 0:
+                    print(result.stdout)
+                    print_success("Wallet created!")
+                else:
+                    print_warning(f"Wallet creation failed: {result.stderr}")
+            else:
+                print_warning("x402_client.py script not found.")
+
+    # Configure MCP server if not already set
+    current = load_config()
+    mcp_servers = current.get("mcp_servers") or {}
+    if "x402" not in mcp_servers:
+        print()
+        if prompt_yes_no(
+            "Add x402 MCP server for paid API tool access?",
+            default=True,
+        ):
+            print_info("You can configure the x402 MCP server with: hermes mcp add x402")
+            print_info("See: https://docs.cdp.coinbase.com/x402")
+
+    print()
+    print_success("x402 setup complete!")
+    print_info("Use the x402 skill with: /x402 or ask your agent to make paid API calls")
+
+
 # =============================================================================
 # Main Wizard Orchestrator
 # =============================================================================
 
 SETUP_SECTIONS = [
+    ("x402", "x402 Wallet & Payments", setup_x402_section),
     ("model", "Model & Provider", setup_model_provider),
     ("tts", "Text-to-Speech", setup_tts),
     ("terminal", "Terminal Backend", setup_terminal_backend),
