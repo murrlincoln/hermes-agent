@@ -771,6 +771,23 @@ program
     }
   })
 
+program
+  .command('publish')
+  .description('Start the publish server — expose your skills as paid x402 endpoints')
+  .option('-p, --port <port>', 'Server port', '8403')
+  .action((opts) => {
+    const serverPath = join(PROJECT_ROOT, 'x402', 'publish', 'server.ts')
+    if (!existsSync(serverPath)) {
+      console.error(chalk.red('Publish server not found. Expected at x402/publish/server.ts'))
+      process.exit(1)
+    }
+    const child = spawn('npx', ['tsx', serverPath, '--port', String(opts.port)], {
+      stdio: 'inherit',
+      env: process.env,
+    })
+    child.on('exit', (code) => process.exit(code ?? 0))
+  })
+
 program.parseAsync().catch((err) => {
   console.error(chalk.red((err as Error).message))
   process.exit(1)

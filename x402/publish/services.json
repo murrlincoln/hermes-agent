@@ -1,0 +1,47 @@
+{
+  "services": [
+    {
+      "name": "research",
+      "description": "Deep research on any topic. Chains Exa search, Perplexity synthesis, and Firecrawl scraping to produce structured reports.",
+      "price": "0.50",
+      "inputExample": {
+        "query": "research the x402 protocol"
+      },
+      "outputExample": {
+        "report": "...",
+        "sources": [],
+        "cost_breakdown": {}
+      },
+      "maxTurns": 10
+    },
+    {
+      "name": "market-intel",
+      "description": "Crypto market intelligence brief. Current prices, DeFi yields, and Polymarket prediction market events.",
+      "price": "0.10",
+      "inputExample": {
+        "query": "give me a crypto market briefing"
+      },
+      "outputExample": {
+        "brief": "...",
+        "prices": {},
+        "yields": [],
+        "predictions": []
+      },
+      "maxTurns": 8
+    },
+    {
+      "name": "company-research",
+      "description": "Company deep dive. Apollo enrichment, news search, and website analysis for any company domain.",
+      "price": "1.00",
+      "inputExample": {
+        "domain": "coinbase.com"
+      },
+      "outputExample": {
+        "company": {},
+        "news": [],
+        "website_analysis": ""
+      },
+      "maxTurns": 10
+    }
+  ]
+}
