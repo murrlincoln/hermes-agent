@@ -2,7 +2,7 @@ name: sales-enrichment
 version: 0.0.1
 description: |
   B2B lead generation and enrichment bundle.
-  Optimized for outbound workflows: org search, contact discovery, verification, and enrichment.
+  Optimized for outbound workflows: org search, contact discovery, verification, and email enrichment.
 
 provider: venice
 chain: base
@@ -21,7 +21,7 @@ models:
     role: heavy_moe
     notes: better filtering + qualification logic
 
-est_cost_per_hour_usdc: 0.45
+est_cost_per_hour_usdc: 0.38
 
 x402_skills: []
 
@@ -42,11 +42,9 @@ x402_endpoints:
     url: https://stableenrich.dev/api/hunter/email-verifier
     est_cost_usdc: 0.03
   - method: POST
-    url: https://stableenrich.dev/api/minerva/enrich
-    est_cost_usdc: 0.05
-  - method: POST
     url: https://stableenrich.dev/api/clado/contacts-enrich
     est_cost_usdc: 0.20
+    notes: body expects flat {"email":"user@example.com"}
 
 skills: []
 mcp_servers: []

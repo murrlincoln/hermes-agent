@@ -2,7 +2,7 @@ name: social-media
 version: 0.0.1
 description: |
   Social media intelligence bundle.
-  Includes Reddit, X/Twitter, Instagram, YouTube, TikTok, LinkedIn, and Facebook endpoints.
+  Includes Reddit, Instagram, TikTok, and Facebook endpoints.
 
 provider: venice
 chain: base
@@ -21,7 +21,7 @@ models:
     role: heavy_moe
     notes: long-context social narrative synthesis
 
-est_cost_per_hour_usdc: 0.30
+est_cost_per_hour_usdc: 0.22
 
 x402_skills: []
 
@@ -29,20 +29,13 @@ x402_endpoints:
   - method: POST
     url: https://stableenrich.dev/api/reddit/search
     est_cost_usdc: 0.02
-  - method: GET
-    url: https://twit.sh/tweets/search?query=coinbase
-    est_cost_usdc: 0.01
+    notes: verified working
   - method: POST
     url: https://stablesocial.dev/api/instagram/search
     est_cost_usdc: 0.06
-  - method: POST
-    url: https://hirescrape.com/api/tools/youtube
-    est_cost_usdc: 0.00
+    notes: body expects {"handle":"coinbase"} (not username/query)
   - method: POST
     url: https://hirescrape.com/api/tools/tiktok
-    est_cost_usdc: 0.00
-  - method: POST
-    url: https://hirescrape.com/api/tools/linkedin
     est_cost_usdc: 0.00
   - method: POST
     url: https://stablesocial.dev/api/facebook/search

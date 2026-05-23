@@ -3,6 +3,7 @@ version: 0.0.1
 description: |
   Creative generation bundle for image, video, and voice.
   Includes FLUX, GPT Image, Sora/Veo, and high-quality TTS providers.
+  fal.ai endpoints are async; Chatterbox TTS requires advanced payload formatting.
 
 provider: venice
 chain: base
@@ -30,6 +31,7 @@ x402_endpoints:
   - method: POST
     url: https://fal.x402.paysponge.com/fal-ai/flux/schnell
     est_cost_usdc: 0.01
+    notes: async job flow (submit + poll) for non-trivial generations
   - method: POST
     url: https://stablestudio.dev/api/generate/gpt-image-2/generate
     est_cost_usdc: 0.10
@@ -39,6 +41,7 @@ x402_endpoints:
   - method: POST
     url: https://stablevoice.dev/api/speech
     est_cost_usdc: 0.02
+    notes: advanced payload; include supported voice enum and output object
   - method: POST
     url: https://genbase.fun/api/video/create-sora2
     est_cost_usdc: 0.20

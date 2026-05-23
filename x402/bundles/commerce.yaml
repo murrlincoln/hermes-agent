@@ -2,7 +2,7 @@ name: commerce
 version: 0.0.1
 description: |
   Commerce + gifting bundle for real-world purchases.
-  Includes gift cards, flower delivery, gift links, merch ordering, and meme inventory/search.
+  Includes flower delivery, gift links, merch ordering, and meme inventory/search.
 
 provider: venice
 chain: base
@@ -21,14 +21,11 @@ models:
     role: heavy_moe
     notes: gift recommendation and budget optimization
 
-est_cost_per_hour_usdc: 1.50
+est_cost_per_hour_usdc: 1.45
 
 x402_skills: []
 
 x402_endpoints:
-  - method: POST
-    url: https://stablegiftcards.dev/api/search
-    est_cost_usdc: 0.01
   - method: POST
     url: https://stableflowers.dev/api/orders
     est_cost_usdc: 50.00

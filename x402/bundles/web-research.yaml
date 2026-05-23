@@ -2,7 +2,7 @@ name: web-research
 version: 0.0.1
 description: |
   Research + web scraping bundle.
-  Includes Exa, Perplexity, Tavily, Firecrawl, and Wolfram Alpha.
+  Includes Exa, Perplexity, StableEnrich Firecrawl proxy, and Wolfram Alpha.
 
 provider: venice
 chain: base
@@ -24,7 +24,7 @@ models:
     role: heavy
     notes: deep synthesis and long-form analysis
 
-est_cost_per_hour_usdc: 0.20
+est_cost_per_hour_usdc: 0.18
 
 x402_skills:
   - exa-ai
@@ -39,9 +39,6 @@ x402_endpoints:
   - method: POST
     url: https://pplx.x402.paysponge.com/search
     est_cost_usdc: 0.01
-  - method: POST
-    url: https://x402helper.xyz/v1/gateway/search/tavily
-    est_cost_usdc: 0.012
   - method: POST
     url: https://stableenrich.dev/api/firecrawl/scrape
     est_cost_usdc: 0.013

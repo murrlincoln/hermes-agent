@@ -1,8 +1,8 @@
 name: jobs
 version: 0.0.1
 description: |
-  Job search bundle across major platforms.
-  Built for sourcing and monitoring role openings from aggregators and structured job APIs.
+  Job search bundle focused on structured Coresignal results.
+  Built for sourcing and monitoring role openings with stable paid API coverage.
 
 provider: venice
 chain: base
@@ -21,22 +21,15 @@ models:
     role: heavy_moe
     notes: resume-role matching and prioritization
 
-est_cost_per_hour_usdc: 0.40
+est_cost_per_hour_usdc: 0.12
 
 x402_skills: []
 
 x402_endpoints:
   - method: POST
-    url: https://hirescrape.com/api/tools/jobs
-    est_cost_usdc: 0.21
-    notes: Indeed/Glassdoor/ZipRecruiter coverage
-  - method: GET
-    url: https://x402helper.xyz/api/agent-jobs/open
-    est_cost_usdc: 0.013
-    notes: Adzuna-style aggregated job feed
-  - method: POST
     url: https://stablejobs.dev/api/coresignal/job-search
     est_cost_usdc: 0.02
+    notes: primary verified jobs endpoint
 
 skills: []
 mcp_servers: []

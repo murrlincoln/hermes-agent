@@ -44,6 +44,7 @@ x402_endpoints:
   - method: POST
     url: https://api.nansen.ai/api/v1/smart-money/netflow
     est_cost_usdc: 0.01
+    notes: body expects timeframe, e.g. {"chains":["ethereum"],"timeframe":"24h"}
   - method: GET
     url: https://api.zerion.io/v1/wallets/0xADDRESS/portfolio
     est_cost_usdc: 0.01
