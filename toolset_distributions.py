@@ -37,7 +37,8 @@ DISTRIBUTIONS = {
             "terminal": 100,
             "file": 100,
             "moa": 100,
-            "browser": 100
+            "browser": 100,
+            "x402": 100,
         }
     },
     
@@ -361,4 +362,3 @@ if __name__ == "__main__":
     print("-" * 40)
     print_distribution_info("image_gen")
     print_distribution_info("research")
-

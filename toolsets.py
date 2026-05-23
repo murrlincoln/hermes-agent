@@ -99,6 +99,15 @@ TOOLSETS = {
         "tools": ["x_search"],
         "includes": []
     },
+
+    "x402": {
+        "description": (
+            "x402 payments on Base. Make paid API calls with wallet-backed "
+            "USDC via x402_pay/x402_balance/x402_wallet."
+        ),
+        "tools": ["x402_pay", "x402_balance", "x402_wallet"],
+        "includes": [],
+    },
     
     "vision": {
         "description": "Image analysis and vision tools",
@@ -383,7 +392,7 @@ TOOLSETS = {
     "hermes-cli": {
         "description": "Full interactive CLI toolset - all default tools plus cronjob management",
         "tools": _HERMES_CORE_TOOLS,
-        "includes": []
+        "includes": ["x402"]
     },
 
     "hermes-cron": {
