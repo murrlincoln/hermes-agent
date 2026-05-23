@@ -42,6 +42,19 @@
         "website_analysis": ""
       },
       "maxTurns": 10
+    },
+    {
+      "name": "ai-agent-research",
+      "description": "Deep research on AI agents and agentic commerce. Chains Exa search and Perplexity synthesis to produce structured reports.",
+      "price": "0.50",
+      "inputExample": {
+        "query": "research hermes agent by nous research"
+      },
+      "outputExample": {
+        "report": "...",
+        "sources": []
+      },
+      "maxTurns": 10
     }
   ]
 }

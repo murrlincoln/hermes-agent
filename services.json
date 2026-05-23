@@ -1,0 +1,52 @@
+{
+  "services": [
+    {
+      "name": "ai-agent-research",
+      "version": "1.0.0",
+      "provider": "hermes",
+      "base_url": "http://localhost:8403",
+      "api_key": "x402",
+      "pricing": {
+        "input": 0.50,
+        "output": 0.50
+      },
+      "description": "Deep research skill using Exa and Perplexity to provide comprehensive answers to complex questions.",
+      "endpoints": [
+        {
+          "path": "/research",
+          "method": "POST",
+          "request": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "The research query to investigate"
+              }
+            },
+            "required": ["query"]
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "answer": {
+                "type": "string",
+                "description": "The comprehensive research answer"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of source URLs used in the research"
+              },
+              "confidence": {
+                "type": "number",
+                "description": "Confidence score from 0 to 1"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
