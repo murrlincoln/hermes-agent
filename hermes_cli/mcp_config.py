@@ -37,6 +37,11 @@ _MCP_PRESETS: Dict[str, Dict[str, Any]] = {
         "command": "codex",
         "args": ["mcp-server"],
     },
+    "x402": {
+        "command": "npx",
+        "args": ["-y", "@coinbase/x402-mcp-server@latest"],
+        "description": "x402 payment protocol — pay for API calls with USDC on Base",
+    },
 }
 
 
