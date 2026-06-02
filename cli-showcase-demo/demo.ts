@@ -1,16 +1,18 @@
 #!/usr/bin/env npx tsx
 /**
  * CLI Showcase Demo — Product showcase scripted animation
+ * Press ENTER to advance through each user prompt. Agent responses auto-play.
  * Run: cd cli-showcase-demo && npx tsx demo.ts
  */
 
 import chalk from 'chalk'
+import { createInterface } from 'readline'
 
-const TYPING_SPEED = 35
+const TYPING_SPEED = 32
 const LINE_DELAY = 60
-const SECTION_PAUSE = 900
+const SECTION_PAUSE = 800
 const THINKING_PAUSE = 500
-const RESULT_LINE_DELAY = 120
+const RESULT_LINE_DELAY = 110
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
@@ -29,6 +31,19 @@ async function printLine(text: string, delay = LINE_DELAY): Promise<void> {
   await sleep(delay)
 }
 
+function waitForEnter(): Promise<void> {
+  return new Promise((resolve) => {
+    const rl = createInterface({ input: process.stdin, output: process.stdout })
+    process.stdin.setRawMode?.(true)
+    process.stdin.resume()
+    process.stdin.once('data', () => {
+      process.stdin.setRawMode?.(false)
+      rl.close()
+      resolve()
+    })
+  })
+}
+
 const BRONZE = chalk.hex('#CD7F32')
 const AMBER = chalk.hex('#FFBF00')
 const GOLD = chalk.hex('#FFD700')
@@ -39,34 +54,31 @@ const GREEN = chalk.green
 const CYAN = chalk.cyan
 const BOLD = chalk.bold
 
-async function banner(): Promise<void> {
+function printBannerInstant(): void {
   console.clear()
-  await printLine('')
-  await printLine(BRONZE('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⣀⣀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine(BRONZE('    ⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣇⠸⣿⣿⠇⣸⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀'))
-  await printLine(AMBER('    ⠀⢀⣠⣴⣶⠿⠋⣩⡿⣿⡿⠻⣿⡇⢠⡄⢸⣿⠟⢿⣿⢿⣍⠙⠿⣶⣦⣄⡀⠀'))
-  await printLine(AMBER('    ⠀⠀⠉⠉⠁⠶⠟⠋⠀⠉⠀⢀⣈⣁⡈⢁⣈⣁⡀⠀⠉⠀⠙⠻⠶⠈⠉⠉⠀⠀'))
-  await printLine(GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⡿⠛⢁⡈⠛⢿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine(GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⣿⣦⣤⣈⠁⢠⣴⣿⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine(AMBER('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣦⡉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine(DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣦⣈⠛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine(DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣴⠦⠈⠙⠿⣦⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine(DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'))
-  await printLine('')
-  await printLine(`  ${GOLD('Hermes Agent')} ${DIM('×')} ${COINBASE_BLUE('Coinbase for Agents')}`)
-  await printLine('')
-  await printLine(`  ${BOLD('Wallet:')}  ${CYAN('0xb5fa...509B')}  ${GREEN('$47.23 USDC')}  ${DIM('Base')}`)
-  await printLine(`  ${BOLD('Model:')}   ${DIM('claude-sonnet-4.6 via OpenRouter')} ${DIM('(x402)')}`)
-  await printLine(`  ${BOLD('Skills:')}  ${DIM('research • market-intel • trading')}`)
-  await printLine('')
-  await printLine(DIM('  ──────────────────────────────────────────────────────────────'))
-  await printLine('')
-}
-
-async function userPrompt(): Promise<void> {
-  process.stdout.write(GOLD('  ● '))
-  await typeText('Research NVDA earnings and give me a trading recommendation', 30)
-  await sleep(SECTION_PAUSE)
+  const lines = [
+    '',
+    BRONZE('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⣀⣀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('     ██████╗'),
+    BRONZE('    ⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣇⠸⣿⣿⠇⣸⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('    ██╔════╝'),
+    AMBER('    ⠀⢀⣠⣴⣶⠿⠋⣩⡿⣿⡿⠻⣿⡇⢠⡄⢸⣿⠟⢿⣿⢿⣍⠙⠿⣶⣦⣄⡀⠀') + '          ' + COINBASE_BLUE('    ██║     '),
+    AMBER('    ⠀⠀⠉⠉⠁⠶⠟⠋⠀⠉⠀⢀⣈⣁⡈⢁⣈⣁⡀⠀⠉⠀⠙⠻⠶⠈⠉⠉⠀⠀') + '          ' + COINBASE_BLUE('    ██║     '),
+    GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⡿⠛⢁⡈⠛⢿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('    ██╔════╝'),
+    GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⣿⣦⣤⣈⠁⢠⣴⣿⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('    ╚██████╗'),
+    AMBER('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣦⡉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('     ╚═════╝'),
+    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣦⣈⠛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'),
+    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣴⠦⠈⠙⠿⣦⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'),
+    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'),
+    '',
+    `  ${GOLD('Hermes Agent')} ${DIM('×')} ${COINBASE_BLUE('Coinbase for Agents')}`,
+    '',
+    `  ${BOLD('Wallet:')}  ${CYAN('0xb5fa...509B')}  ${GREEN('$47.23 USDC')}  ${DIM('Base')}`,
+    `  ${BOLD('Model:')}   ${DIM('claude-sonnet-4.6 via OpenRouter')} ${DIM('(x402)')}`,
+    `  ${BOLD('Skills:')}  ${DIM('research • market-intel • trading')}`,
+    '',
+    DIM('  ──────────────────────────────────────────────────────────────'),
+    '',
+  ]
+  console.log(lines.join('\n'))
 }
 
 async function agentThinking(): Promise<void> {
@@ -126,10 +138,7 @@ async function agentResponse(): Promise<void> {
   await sleep(SECTION_PAUSE)
 }
 
-async function tradeExecution(): Promise<void> {
-  await printLine('')
-  process.stdout.write(GOLD('  ● '))
-  await typeText('buy $5,000 of NVDA', 30)
+async function tradeResponse(): Promise<void> {
   await sleep(600)
   await printLine('')
   await printLine(`  ${DIM('┊')} ${CYAN('⚡')} ${DIM('coinbase buy --asset NVDA --spend 5000 --payment-method usdc')}`)
@@ -156,11 +165,25 @@ async function tradeExecution(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  await banner()
-  await userPrompt()
+  printBannerInstant()
+
+  // First prompt — press enter to start typing
+  await waitForEnter()
+  process.stdout.write(GOLD('  ● '))
+  await typeText('Research NVDA earnings and give me a trading recommendation', 30)
+
+  // Agent does its thing automatically
   await agentThinking()
   await agentResponse()
-  await tradeExecution()
+
+  // Second prompt — press enter to trigger the trade
+  await printLine('')
+  await waitForEnter()
+  process.stdout.write(GOLD('  ● '))
+  await typeText('buy $5,000 of NVDA', 30)
+
+  // Agent executes trade
+  await tradeResponse()
 }
 
 main().catch(console.error)
