@@ -56,26 +56,27 @@ const BOLD = chalk.bold
 
 function printBannerInstant(): void {
   console.clear()
+  const X = chalk.white.bold('×')
   const lines = [
     '',
-    BRONZE('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⣀⣀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('     ██████╗'),
-    BRONZE('    ⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣇⠸⣿⣿⠇⣸⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('    ██╔════╝'),
-    AMBER('    ⠀⢀⣠⣴⣶⠿⠋⣩⡿⣿⡿⠻⣿⡇⢠⡄⢸⣿⠟⢿⣿⢿⣍⠙⠿⣶⣦⣄⡀⠀') + '          ' + COINBASE_BLUE('    ██║     '),
-    AMBER('    ⠀⠀⠉⠉⠁⠶⠟⠋⠀⠉⠀⢀⣈⣁⡈⢁⣈⣁⡀⠀⠉⠀⠙⠻⠶⠈⠉⠉⠀⠀') + '          ' + COINBASE_BLUE('    ██║     '),
-    GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⡿⠛⢁⡈⠛⢿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('    ██╔════╝'),
-    GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⣿⣦⣤⣈⠁⢠⣴⣿⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('    ╚██████╗'),
-    AMBER('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣦⡉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '          ' + COINBASE_BLUE('     ╚═════╝'),
-    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣦⣈⠛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'),
-    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣴⠦⠈⠙⠿⣦⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'),
-    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'),
+    BRONZE('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⣀⣀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⣿⣿⣿⣶⣦⣄⠀⠀⠀⠀⠀⠀⠀'),
+    BRONZE('    ⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣇⠸⣿⣿⠇⣸⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⠀⠀⣠⣾⣿⡿⠛⠉⠀⠀⠉⠛⢿⣿⣷⣄⠀⠀⠀⠀⠀'),
+    AMBER('    ⠀⢀⣠⣴⣶⠿⠋⣩⡿⣿⡿⠻⣿⡇⢠⡄⢸⣿⠟⢿⣿⢿⣍⠙⠿⣶⣦⣄⡀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⢀⣾⣿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣿⣷⡀⠀⠀⠀'),
+    AMBER('    ⠀⠀⠉⠉⠁⠶⠟⠋⠀⠉⠀⢀⣈⣁⡈⢁⣈⣁⡀⠀⠉⠀⠙⠻⠶⠈⠉⠉⠀⠀') + '  ' + X + '    ' + COINBASE_BLUE('⠀⠀⢀⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⡀⠀⠀'),
+    GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⡿⠛⢁⡈⠛⢿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⢸⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⡇⠀⠀'),
+    GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⣿⣦⣤⣈⠁⢠⣴⣿⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⢸⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⡇⠀⠀'),
+    AMBER('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣦⡉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⡀⠀⠀'),
+    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣦⣈⠛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⠀⠻⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⠟⠀⠀⠀'),
+    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣴⠦⠈⠙⠿⣦⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⠀⠀⠈⠻⣿⣿⣦⣄⠀⠀⣠⣴⣿⣿⠟⠁⠀⠀⠀⠀⠀'),
+    DIM_GOLD('    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀') + '       ' + COINBASE_BLUE('⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠿⣿⣿⠿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀'),
     '',
-    `  ${GOLD('Hermes Agent')} ${DIM('×')} ${COINBASE_BLUE('Coinbase for Agents')}`,
+    `  ${GOLD('Hermes Agent')}  ${X}  ${COINBASE_BLUE('Coinbase for Agents')}`,
     '',
     `  ${BOLD('Wallet:')}  ${CYAN('0xb5fa...509B')}  ${GREEN('$47.23 USDC')}  ${DIM('Base')}`,
     `  ${BOLD('Model:')}   ${DIM('claude-sonnet-4.6 via OpenRouter')} ${DIM('(x402)')}`,
     `  ${BOLD('Skills:')}  ${DIM('research • market-intel • trading')}`,
     '',
-    DIM('  ──────────────────────────────────────────────────────────────'),
+    DIM('  ──────────────────────────────────────────────────────────────────────────────'),
     '',
   ]
   console.log(lines.join('\n'))
@@ -145,18 +146,16 @@ async function tradeResponse(): Promise<void> {
   await sleep(900)
   await printLine(`  ${DIM('┊')} ${GREEN('✓')} ${BOLD('Order filled')} — BUY 35.71 NVDA @ $140.00`)
   await sleep(200)
-  await printLine(`  ${DIM('┊')}   ${DIM('Settled in USDC on Base  •  Fee: $0.00')}`)
+  await printLine(`  ${DIM('┊')}   ${DIM('Order ID: ord_8f2a4c91  •  Status: filled')}`)
   await sleep(SECTION_PAUSE)
   await printLine('')
   await printLine(GOLD(' ─  ⚕ Hermes  ─────────────────────────────────────────────────────'))
   await printLine('')
   await sleep(300)
-  await printLine(`     Bought 35.71 shares of NVDA for $5,000 USDC.`)
-  await sleep(RESULT_LINE_DELAY)
-  await printLine(`     Settled instantly on Base. No fees.`)
+  await printLine(`     Done. Bought 35.71 shares of NVDA for $5,000.`)
   await printLine('')
   await sleep(RESULT_LINE_DELAY)
-  await printLine(`     ${DIM('Session: $0.06 research + $0.00 trade = $0.06 total')}`)
+  await printLine(`     ${DIM('Session: $0.06 research + $5,000.00 trade')}`)
   await sleep(RESULT_LINE_DELAY)
   await printLine(`     ${DIM('Wallet: $42.17 USDC remaining')}`)
   await printLine('')
