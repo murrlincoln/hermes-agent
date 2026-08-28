@@ -32,14 +32,14 @@ The following is the complete skill definition that Hermes loads when this skill
 # Coinbase Skill
 
 Use the hosted Coinbase MCP server (`https://agents.coinbase.com/mcp`) for brokerage: balances,
-portfolios, market data, and user-approved spot / futures / equity orders. Prefer its typed
+portfolios, market data, and spot / futures / equity orders. Prefer its typed
 `coinbase_*` tools over terminal commands. The server handles OAuth and acts on the user's behalf;
-it does not fund an account and does not replace explicit confirmation for state-changing actions.
+it does not fund an account.
 
 ## When to Use
 
 - Check balances, products, fees, orders, fills, or portfolios.
-- Analyze markets and (after user approval) place, preview, modify, or cancel orders.
+- Analyze markets and place, preview, modify, or cancel orders.
 - Convert between USDC and USD, or transfer between portfolios.
 - Set up user-approved, explicitly bounded trading automations.
 
@@ -74,19 +74,12 @@ The tools appear in Hermes as `mcp__coinbase__<tool>` (e.g. `mcp__coinbase__coin
 the live tool schemas and responses as authoritative over this reference; do not reconstruct
 brokerage HTTP requests or fall back to shell commands.
 
-## Safety model
+## Tool classification
 
-Classify every operation before acting:
-
-- **Read-only** (no confirmation needed): market data, balances, portfolios list/get, orders
-  list/get/fills, fees, conversion quotes, order previews.
-- **State-changing** (confirm first): orders create/edit/cancel/close-position, conversion execute,
-  transfers, portfolio create/edit/delete.
-
-Before a state-changing call, state and get confirmation of the *exact* action — for orders: product,
-side, type, portfolio, exact `quote_size` or `base_size`, limit/stop prices, time-in-force, estimated
-fees/slippage from a preview, and (for futures) liquidation risk. For conversions: currencies, amount,
-quoted rate/fees, quote expiry. For transfers: currency, amount, source and destination portfolio.
+- **Read-only:** market data, balances, portfolios list/get, orders list/get/fills, fees, conversion
+  quotes, order previews.
+- **State-changing:** orders create/edit/cancel/close-position, conversion execute, transfers, portfolio
+  create/edit/delete.
 
 Never:
 
@@ -94,7 +87,7 @@ Never:
 - Substitute a different asset, quote currency, portfolio, side, order type, or leverage.
 - Claim guaranteed execution, returns, tax treatment, or investment suitability.
 - Call `orders_edit`, `orders_close_position`, or `portfolios_delete` unless the user explicitly
-  requests that exact action and confirms after seeing consequences.
+  requests that exact action.
 - Infer trade direction or amount from portfolio context.
 
 ## Quick Reference
@@ -103,7 +96,7 @@ Read-only: `products_list`, `products_get`, `products_ticker`, `products_book`, 
 `products_best_bid_ask`, `balance`, `fees`, `portfolios_list`, `portfolios_get`, `orders_preview`,
 `orders_list`, `orders_get`, `orders_fills`, `convert_quote`, `convert_get`.
 
-State-changing (confirm first): `orders_create`, `orders_edit`, `orders_cancel`,
+State-changing: `orders_create`, `orders_edit`, `orders_cancel`,
 `orders_close_position`, `convert_execute`, `transfer`, `portfolios_create`, `portfolios_edit`,
 `portfolios_delete`.
 
@@ -125,7 +118,7 @@ Key parameters:
 - Market buy by spend amount uses `quote_size`. Stop-limit orders use `base_size` plus `stop_price`,
   `limit_price`, and `stop_direction`.
 - Fee handling is asymmetric: a market buy deducts the fee from `quote_size`; a limit buy adds it on
-  top. Preview and surface the net cost before confirming.
+  top. Preview and surface the net cost.
 - Validate `base_increment` / `quote_increment` / min / max sizes from `products_get` before sizing.
 - Per-order notional is capped (currently **15,000 USD equivalent**) by the server schema.
 - `client_order_id` is your idempotency key (may be auto-generated if omitted). Reuse the same ID only
@@ -139,14 +132,12 @@ Key parameters:
 2. For a trade, validate increments/min/max and the notional cap, then preview
    (`orders_preview`) — especially for market, limit, stop-limit, futures, large, or unfamiliar orders.
    Preview is not execution; say so.
-3. State and obtain confirmation of the complete action (see Safety model). A prior strategy or general
-   instruction is not authorization for a later trade.
-4. Submit the confirmed call once with a stable `client_order_id`. Report the returned status; do not
+3. Submit the call once with a stable `client_order_id`. Report the returned status; do not
    automatically follow up. If the outcome is unclear, query `orders_get` with the same `client_order_id`
    before retrying.
-5. For conversions, quote first, show rate/fees, confirm, then execute only the matching `from`/`to`/
-   `quote_id` (quotes expire — obtain a fresh quote immediately before execution).
-6. Distinguish order status (submitted/open, partially filled, filled, rejected, cancelled). Never
+4. For conversions, quote first, then execute only the matching `from`/`to`/`quote_id` (quotes expire —
+   obtain a fresh quote immediately before execution).
+5. Distinguish order status (submitted/open, partially filled, filled, rejected, cancelled). Never
    describe an order as filled unless its status or a follow-up lookup confirms it.
 
 ## Automations
