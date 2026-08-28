@@ -1,0 +1,64 @@
+manifest_version: 1
+
+name: coinbase
+description: Trade crypto and equities and manage Coinbase portfolios and balances.
+source: https://docs.cdp.coinbase.com/coinbase-for-agents/overview
+
+transport:
+  type: http
+  url: https://agents.coinbase.com/mcp
+
+auth:
+  type: oauth
+  # Native MCP OAuth 2.1 (CIMD — Coinbase publishes no DCR registration
+  # endpoint; Hermes presents its published client-metadata URL as client_id).
+  # NOTE: `scopes` is not yet wired through the catalog -> OAuth flow, so the
+  # authorize request currently requests the full (read + write) scope set.
+  # When the plumbing lands, default to the read-only scopes here.
+
+# Default the install to a READ-ONLY surface. Mutating tools (orders create/edit/
+# cancel/close, conversion execute, transfer, portfolio create/edit/delete) stay
+# in the checklist so users can opt in per their threat model, matching the n8n
+# precedent. Tool names are the raw server names (coinbase_-prefixed).
+tools:
+  default_enabled:
+    - coinbase_balance
+    - coinbase_fees
+    - coinbase_products_list
+    - coinbase_products_get
+    - coinbase_products_ticker
+    - coinbase_products_book
+    - coinbase_products_candles
+    - coinbase_products_best_bid_ask
+    - coinbase_portfolios_list
+    - coinbase_portfolios_get
+    - coinbase_orders_preview
+    - coinbase_orders_list
+    - coinbase_orders_get
+    - coinbase_orders_fills
+    - coinbase_convert_quote
+    - coinbase_convert_get
+
+suggest:
+  keywords:
+    - coinbase
+    - crypto trade
+    - equities trade
+    - portfolio balance
+  hosts:
+    - coinbase.com
+
+post_install: |
+  On first connection Hermes opens a browser to authorize with Coinbase
+  (or run `hermes mcp login coinbase`). Select only the portfolios you
+  intend to expose, then restart the session so tools load.
+
+  The remote server is gated to an explicit harness allowlist (ChatGPT,
+  Claude, Claude Code; Codex/others pending). If OAuth completes but no
+  tools load, confirm Hermes is allowlisted.
+
+  CAUTION: this server can place real trades and move funds between
+  portfolios. The install defaults to read-only tools; only enable the
+  mutating tools (orders create/edit/cancel/close, conversion execute,
+  transfer, portfolio create/edit/delete) if you intend to use them, and
+  review every action before approving it.
