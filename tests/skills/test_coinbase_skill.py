@@ -29,5 +29,4 @@ def test_skill_frontmatter_meets_authoring_contract():
     assert {"linux", "macos", "windows"} <= set(metadata["platforms"])
     assert {
         "mcp-oauth-remote-gateway",
-        "mpp-agent",
     } <= set(metadata["metadata"]["hermes"]["related_skills"])

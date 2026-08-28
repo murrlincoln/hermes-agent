@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [Coinbase, Crypto, Trading, Portfolios, Brokerage]
-    related_skills: [mcp-oauth-remote-gateway, mpp-agent]
+    related_skills: [mcp-oauth-remote-gateway]
 ---
 
 # Coinbase Skill
@@ -30,7 +30,7 @@ no Coinbase context, onchain/DeFi activity, or external-wallet sends (the server
 withdrawal tools; `coinbase_transfer` moves funds only between Coinbase portfolios).
 
 > Coming soon, not yet available: x402 payments for agent-consumed services. They are not exposed by
-> this server yet; for x402/MPP payments today use the `mpp-agent` skill instead.
+> this server yet.
 
 ## Prerequisites
 

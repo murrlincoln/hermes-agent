@@ -21,7 +21,7 @@ Manage Coinbase accounts, trading, and portfolios.
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Coinbase`, `Crypto`, `Trading`, `Portfolios`, `Brokerage` |
-| Related skills | [`mcp-oauth-remote-gateway`](/docs/user-guide/skills/optional/mcp/mcp-mcp-oauth-remote-gateway), [`mpp-agent`](/docs/user-guide/skills/optional/payments/payments-mpp-agent) |
+| Related skills | [`mcp-oauth-remote-gateway`](/docs/user-guide/skills/optional/mcp/mcp-mcp-oauth-remote-gateway) |
 
 ## Reference: full SKILL.md
 
@@ -48,7 +48,7 @@ no Coinbase context, onchain/DeFi activity, or external-wallet sends (the server
 withdrawal tools; `coinbase_transfer` moves funds only between Coinbase portfolios).
 
 > Coming soon, not yet available: x402 payments for agent-consumed services. They are not exposed by
-> this server yet; for x402/MPP payments today use the `mpp-agent` skill instead.
+> this server yet.
 
 ## Prerequisites
 
